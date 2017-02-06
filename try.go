@@ -85,21 +85,6 @@ type UserIntermediary struct{
 	Password string `json:"password"`
 	Token	string `json:"token"`
 }
-//
-//func LoadUserFromToken(myToken string) (*User, error) {
-//	var u User
-//	token,_:=jwt.Parse(myToken, func(token *jwt.Token) (interface{}, error) {
-//    return hashToken, nil
-//	})
-//	//if err != nil {
-//	//	fmt.Println("TOKEN", token, err)
-//	//	return nil, errors.New("Token Parsing Problem")
-//	//}
-//	if _,err := bucket.Get(token.Claims["user"].(string),&u); err != nil{
-//		return nil, errors.New("User Loading Error")
-//	}
-//	return &u, nil
-//}
 
 func LoadUserFromToken(myToken string) (*User, error) {
 	var u User
