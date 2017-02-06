@@ -12,6 +12,7 @@ import (
 	"errors"
   jwt "github.com/dgrijalva/jwt-go"
 
+	//"os/user"
 )
 
 // bucket reference
@@ -84,17 +85,30 @@ type UserIntermediary struct{
 	Password string `json:"password"`
 	Token	string `json:"token"`
 }
+//
+//func LoadUserFromToken(myToken string) (*User, error) {
+//	var u User
+//	token,_:=jwt.Parse(myToken, func(token *jwt.Token) (interface{}, error) {
+//    return hashToken, nil
+//	})
+//	//if err != nil {
+//	//	fmt.Println("TOKEN", token, err)
+//	//	return nil, errors.New("Token Parsing Problem")
+//	//}
+//	if _,err := bucket.Get(token.Claims["user"].(string),&u); err != nil{
+//		return nil, errors.New("User Loading Error")
+//	}
+//	return &u, nil
+//}
 
 func LoadUserFromToken(myToken string) (*User, error) {
 	var u User
 	token,_:=jwt.Parse(myToken, func(token *jwt.Token) (interface{}, error) {
     return hashToken, nil
 	})
-	//if err != nil {
-	//	fmt.Println("TOKEN", token, err)
-	//	return nil, errors.New("Token Parsing Problem")
-	//}
-	if _,err := bucket.Get(token.Claims["user"].(string),&u); err != nil{
+
+	claims := token.Claims.(jwt.MapClaims)
+	if _,err := bucket.Get(claims["user"].(string),&u); err != nil{
 		return nil, errors.New("User Loading Error")
 	}
 	return &u, nil
@@ -109,7 +123,9 @@ func (u *User) Save() bool{
 
 func (u *UserIntermediary) CreateUser() bool{
 	token := jwt.New(jwt.SigningMethodHS256)
-	token.Claims["user"] = u.User
+	token.Claims = jwt.MapClaims{
+		"user": u.User,
+	}
 	if encryptedToken, err := token.SignedString([]byte(hashToken)); err != nil{
 		return false
 	} else {
